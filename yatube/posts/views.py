@@ -7,6 +7,7 @@ from .models import Group, Post, User, Follow
 from .utils import paginations
 from django.views.decorators.cache import cache_page
 
+
 @cache_page(60 * 20)
 def index(request):
     post_list = Post.objects.select_related('group', 'author')
@@ -102,6 +103,7 @@ def post_edit(request, post_id):
     }
     return render(request, template, context)
 
+
 @login_required
 def add_comment(request, post_id):
     template = 'posts:post_detail'
@@ -113,6 +115,7 @@ def add_comment(request, post_id):
         comment.post = post
         comment.save()
     return redirect(template, post_id)
+
 
 @login_required
 def follow_index(request):

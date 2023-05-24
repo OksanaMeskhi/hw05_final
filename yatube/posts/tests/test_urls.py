@@ -46,8 +46,8 @@ class PostURLTests(TestCase):
                 self.assertTemplateUsed(response, template)
 
     def test_post_edit_for_client(self):
-        """Страница по адресу posts/<int:post_id>/edit/ доступна авторизованному
-        пользователю."""
+        """Страница по адресу posts/<int:post_id>/edit/ доступна
+        авторизованному пользователю."""
         for url in self.templates_url_names:
             with self.subTest(url=url):
                 response = self.authorized_client.get(url)

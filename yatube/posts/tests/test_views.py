@@ -1,20 +1,21 @@
 import shutil
 import tempfile
+
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.paginator import Page
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from posts.forms import PostForm
-from posts.models import Group, Post, User, Comment, Follow
-from django.core.cache import cache
-from django.core.files.uploadedfile import SimpleUploadedFile
-
+from posts.models import Comment, Follow, Group, Post, User
 
 User = get_user_model()
 PAGE_SIZE_2 = 3
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
+
 
 @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class PostViewsTest(TestCase):
@@ -159,7 +160,8 @@ class PostViewsTest(TestCase):
 
     def test_follow(self):
         self.assertFalse(
-            Follow.objects.filter(user=self.user, author=self.post.author).exists()
+            Follow.objects.filter(
+                user=self.user, author=self.post.author).exists()
         )
         count_all_follow = Follow.objects.count()
         self.authorized.get(
@@ -170,7 +172,8 @@ class PostViewsTest(TestCase):
         )
         count_after_follow = Follow.objects.count()
         self.assertTrue(
-            Follow.objects.filter(user=self.user, author=self.post.author).exists()
+            Follow.objects.filter(
+                user=self.user, author=self.post.author).exists()
         )
         self.assertNotEqual(count_after_follow, count_all_follow)
         self.assertEqual(count_after_follow, count_all_follow + 1)
@@ -182,7 +185,8 @@ class PostViewsTest(TestCase):
             author=self.post.author,
         )
         self.assertTrue(
-            Follow.objects.filter(user=self.user, author=self.post.author).exists()
+            Follow.objects.filter(
+                user=self.user, author=self.post.author).exists()
         )
         self.authorized.get(
             reverse(
@@ -192,10 +196,10 @@ class PostViewsTest(TestCase):
         )
         count_follow_after_delete = len(Follow.objects.all())
         self.assertFalse(
-            Follow.objects.filter(user=self.user, author=self.post.author).exists()
+            Follow.objects.filter(
+                user=self.user, author=self.post.author).exists()
         )
         self.assertEqual(count_follow_after_delete, count_all_follow)
-
 
 
 class PaginatorTest(TestCase):

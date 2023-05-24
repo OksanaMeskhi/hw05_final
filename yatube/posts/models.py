@@ -59,6 +59,7 @@ class Post(models.Model):
     def __str__(self):
         return self.text[:15]
 
+
 class Comment(models.Model):
     """Модель комментариев."""
 
@@ -78,6 +79,7 @@ class Comment(models.Model):
         'текст комментария',
         help_text='Введите комментарий'
     )
+
 
 class Follow(models.Model):
     """Модель подписки на авторов."""
