@@ -158,48 +158,52 @@ class PostViewsTest(TestCase):
             response_after_clear_cash.content, response_after_del_post.content
         )
 
-    def test_follow(self):
-        self.assertFalse(
-            Follow.objects.filter(
-                user=self.user, author=self.post.author).exists()
+
+class FollowViewsTest(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.post_author = User.objects.create(
+            username='post_author',
         )
-        count_all_follow = Follow.objects.count()
-        self.authorized.get(
+        cls.post_follower = User.objects.create(
+            username='post_follower',
+        )
+        cls.post = Post.objects.create(
+            text='Подписка',
+            author=cls.post_author,
+        )
+
+    def setUp(self):
+        cache.clear()
+        self.author_client = Client()
+        self.author_client.force_login(self.post_follower)
+        self.follower_client = Client()
+        self.follower_client.force_login(self.post_author)
+
+    def test_follow_on_user(self):
+        """Проверка подписки на пользователя."""
+        count_follow = Follow.objects.count()
+        self.follower_client.post(
             reverse(
                 'posts:profile_follow',
-                kwargs={'username': self.post.author.username}
-            )
-        )
-        count_after_follow = Follow.objects.count()
-        self.assertTrue(
-            Follow.objects.filter(
-                user=self.user, author=self.post.author).exists()
-        )
-        self.assertNotEqual(count_after_follow, count_all_follow)
-        self.assertEqual(count_after_follow, count_all_follow + 1)
+                kwargs={'username': self.post_follower}))
+        follow = Follow.objects.all().latest('id')
+        self.assertEqual(Follow.objects.count(), count_follow + 1)
+        self.assertEqual(follow.author_id, self.post_follower.id)
+        self.assertEqual(follow.user_id, self.post_author.id)
 
-    def test_unfollow(self):
-        count_all_follow = Follow.objects.count()
+    def test_unfollow_on_user(self):
+        """Проверка отписки от пользователя."""
         Follow.objects.create(
-            user=self.user,
-            author=self.post.author,
-        )
-        self.assertTrue(
-            Follow.objects.filter(
-                user=self.user, author=self.post.author).exists()
-        )
-        self.authorized.get(
+            user=self.post_author,
+            author=self.post_follower)
+        count_follow = Follow.objects.count()
+        self.follower_client.post(
             reverse(
                 'posts:profile_unfollow',
-                kwargs={'username': self.post.author.username}
-            )
-        )
-        count_follow_after_delete = len(Follow.objects.all())
-        self.assertFalse(
-            Follow.objects.filter(
-                user=self.user, author=self.post.author).exists()
-        )
-        self.assertEqual(count_follow_after_delete, count_all_follow)
+                kwargs={'username': self.post_follower}))
+        self.assertEqual(Follow.objects.count(), count_follow - 1)
 
 
 class PaginatorTest(TestCase):
@@ -223,6 +227,7 @@ class PaginatorTest(TestCase):
     def setUp(self):
         self.authorized = Client()
         self.authorized.force_login(self.user)
+        cache.clear()
 
     def test_post_paginator(self):
         posts_on_first_page = settings.PAGE_SIZE

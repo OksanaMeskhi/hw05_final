@@ -1,7 +1,10 @@
 from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.test import TestCase, Client
+
 
 from ..models import Post, Group
 
@@ -37,10 +40,11 @@ class PostURLTests(TestCase):
         self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
+        cache.clear()
 
     def test_urls(self):
         """URL-адрес использует соответствующий шаблон."""
-        for url, template, in self.templates_url_names.items():
+        for url, template in self.templates_url_names.items():
             with self.subTest(url=url):
                 response = self.authorized_client.get(url)
                 self.assertTemplateUsed(response, template)
