@@ -67,23 +67,18 @@ class Comment(models.Model):
         Post,
         on_delete=models.CASCADE,
         related_name='comments',
-        verbose_name='Пост')
+        verbose_name='комментируемый пост',
+    )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='comments',
-        verbose_name='Автор')
+        verbose_name='автор комментария'
+    )
     text = models.TextField(
-        verbose_name='Коментарий')
-    created = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Создан')
-    updated = models.DateTimeField(
-        auto_now=True,
-        verbose_name='Обнавлен')
-    active = models.BooleanField(
-        default=True,
-        verbose_name='Активен')
+        'текст комментария',
+        help_text='Введите комментарий'
+    )
 
 
 class Follow(models.Model):
