@@ -81,7 +81,8 @@ class Comment(models.Model):
     )
     created = models.DateTimeField(
         auto_now_add=True,
-        verbose_name='Создан')
+        verbose_name='Создан'
+    )
 
 
 class Follow(models.Model):
