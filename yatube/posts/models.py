@@ -79,6 +79,9 @@ class Comment(models.Model):
         'текст комментария',
         help_text='Введите комментарий'
     )
+    created = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Создан')
 
 
 class Follow(models.Model):
