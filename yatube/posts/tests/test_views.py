@@ -202,8 +202,8 @@ class FollowViewsTest(TestCase):
                 'posts:profile_follow',
                 kwargs={'username': self.post_follower}))
         self.assertTrue(Follow.objects.filter(
-                user=self.user_following,
-                author=self.user,).exists()
+            user=self.user_following,
+            author=self.user,).exists()
         )
 
     def test_unfollow_on_user(self):
@@ -212,8 +212,8 @@ class FollowViewsTest(TestCase):
             user=self.post_author,
             author=self.post_follower)
         self.assertFalse(Follow.objects.filter(
-                user=self.user_following,
-                author=self.user,).exists()
+            user=self.user_following,
+            author=self.user,).exists()
         )
 
 
