@@ -1,11 +1,11 @@
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import cache_page
 from django.shortcuts import redirect
 
 from .forms import PostForm, CommentForm
 from .models import Group, Post, User, Follow
 from .utils import paginations
-from django.views.decorators.cache import cache_page
 
 
 @cache_page(60 * 20)
@@ -16,7 +16,6 @@ def index(request):
     context = {
         'page_obj': page_obj,
     }
-
     return render(request, template, context)
 
 
@@ -53,7 +52,7 @@ def profile(request, username):
 def post_detail(request, post_id):
     template = 'posts/post_detail.html'
     post = get_object_or_404(Post, pk=post_id)
-    form = CommentForm(request.POST or None)
+    form = CommentForm()
     comments = post.comments.select_related('author')
     context = {
         'post': post,
@@ -66,7 +65,11 @@ def post_detail(request, post_id):
 @login_required
 def post_create(request):
     template = 'posts/create_post.html'
-    form = PostForm(request.POST or None)
+    form = PostForm(
+        request.POST or None,
+        files=request.FILES or None,
+        instance=post,
+    )
     if form.is_valid():
         post = form.save(commit=False)
         post.author = request.user
@@ -132,11 +135,8 @@ def follow_index(request):
 def profile_follow(request, username):
     """Функция подписки на автора."""
     author = get_object_or_404(User, username=username)
-    following = Follow.objects.filter(
-        user=request.user, author=author
-    ).exists()
-    if request.user != author and not following:
-        Follow.objects.create(user=request.user, author=author)
+    if author != request.user:
+        Follow.objects.get_or_create(user=request.user, author=author)
     return redirect('posts:profile', author.username)
 
 

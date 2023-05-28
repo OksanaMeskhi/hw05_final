@@ -28,22 +28,5 @@
       {% endif %}
     </div>
   {% for post in page_obj %}
-    <article>
-      <ul>
-        <li>
-          Дата публикации: {{ post.pub_date|date:"d E Y" }}
-        </li>
-      </ul>
-      <p> {{ post.text|linebreaksbr }} </p>
-      <a href="{% url 'posts:post_detail' post.pk %}">подробная информация</a>
-      <br>
-      {% if post.group %}
-        <a href="{% url 'posts:group_list' post.group.slug %}">все записи группы {{ post.group.slug}}</a>
-      {% endif %}
-    </article>
-    {% if not forloop.last %}<hr>{% endif %}
-  {% endfor %}
-  <div class="d-flex justify-content-center">
-    <div>{% include 'posts/includes/paginator.html' %}</div>
-  </div>
+  {% include 'posts/includes/card_post.html' %}
 {% endblock %}

@@ -6,7 +6,7 @@
   {% include "posts/includes/switcher.html" %}
   <h1>  Последние обновления на сайте  </h1>
   {% for post in page_obj %}
-    {% include "posts/includes/card_post.html" %}
+  {% include 'posts/includes/switcher.html' with follow=True %}
   {% endfor %}
   {% include 'posts/includes/paginator.html' %}
 {% endblock %}

@@ -4,7 +4,7 @@
 {% endblock %}
 {% block content %}
   <h1>  {{ group.title}}  </h1>
-  <p>  {{ group.description }}  </p>
+  <p>  {{ group.description|linebreaksbr }}  </p>
   {% for post in page_obj %}
     {% include "posts/includes/card_post.html" %}
   {% endfor %}

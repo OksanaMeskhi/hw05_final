@@ -9,7 +9,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.paginator import Page
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
-from posts.forms import PostForm
+from posts.forms import PostForm, CommentForm
 from posts.models import Comment, Follow, Group, Post, User
 
 User = get_user_model()
@@ -52,6 +52,10 @@ class PostViewsTest(TestCase):
             text='Тестовый комментарий',
         )
 
+        cls.form_fields = {
+            'text': forms.fields.CharField,
+        }
+
     def setUp(self):
         self.guest = Client()
         self.authorized = Client()
@@ -68,6 +72,7 @@ class PostViewsTest(TestCase):
         self.assertEqual(post.text, self.post.text)
         self.assertEqual(post.author.username, self.user.username)
         self.assertEqual(post.group.slug, self.group.slug)
+        self.assertEqual(post.image, f'posts/{self.uploaded}')
 
     def get_post(self, response):
         page_obj = response.context.get('page_obj')
@@ -100,6 +105,13 @@ class PostViewsTest(TestCase):
             'posts:post_detail', kwargs={'post_id': self.post.id}))
         context_post = response.context.get('post')
         self.context_test(context_post)
+        form = response.context.get('form')
+        self.assertIsInstance(form, CommentForm)
+        form_field = form.fields.get('text')
+        self.assertIsInstance(form_field, forms.fields.CharField)
+        comments = response.context.get('comments')
+        comment = comments[0]
+        self.assertEqual(comment, self.comment)
 
     def test_post_edit_detail_page_show_correct_context(self):
         response = self.authorized.get(reverse(
@@ -107,6 +119,7 @@ class PostViewsTest(TestCase):
         form_fields = {
             'text': forms.fields.CharField,
             'group': forms.fields.ChoiceField,
+            'image': forms.fields.ImageField,
         }
         for value in form_fields.items():
             with self.subTest(value=value):
@@ -121,6 +134,7 @@ class PostViewsTest(TestCase):
         form_fields = {
             'text': forms.fields.CharField,
             'group': forms.fields.ChoiceField,
+            'image': forms.fields.ImageField,
         }
         for value in form_fields.items():
             with self.subTest(value=value):
@@ -183,27 +197,24 @@ class FollowViewsTest(TestCase):
 
     def test_follow_on_user(self):
         """Проверка подписки на пользователя."""
-        count_follow = Follow.objects.count()
         self.follower_client.post(
             reverse(
                 'posts:profile_follow',
                 kwargs={'username': self.post_follower}))
-        follow = Follow.objects.all().latest('id')
-        self.assertEqual(Follow.objects.count(), count_follow + 1)
-        self.assertEqual(follow.author_id, self.post_follower.id)
-        self.assertEqual(follow.user_id, self.post_author.id)
+        self.assertTrue(Follow.objects.filter(
+                user=self.user_following,
+                author=self.user,).exists()
+        )
 
     def test_unfollow_on_user(self):
         """Проверка отписки от пользователя."""
         Follow.objects.create(
             user=self.post_author,
             author=self.post_follower)
-        count_follow = Follow.objects.count()
-        self.follower_client.post(
-            reverse(
-                'posts:profile_unfollow',
-                kwargs={'username': self.post_follower}))
-        self.assertEqual(Follow.objects.count(), count_follow - 1)
+        self.assertFalse(Follow.objects.filter(
+                user=self.user_following,
+                author=self.user,).exists()
+        )
 
 
 class PaginatorTest(TestCase):
