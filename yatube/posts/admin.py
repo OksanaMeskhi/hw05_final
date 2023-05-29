@@ -30,12 +30,12 @@ class FollowAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(Comment)
-class CommentAdmin(admin.ModelAdmin):
-    list_display = (
-        'pk',
-        'post',
-        'text',
-        'author',
-        'created',
-    )
+# @admin.register(Comment)
+# class CommentAdmin(admin.ModelAdmin):
+#     list_display = (
+#         'pk',
+#         'post',
+#         'text',
+#         'author',
+#         'created',
+#     )
