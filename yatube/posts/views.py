@@ -63,11 +63,9 @@ def post_detail(request, post_id):
 @login_required
 def post_create(request):
     template = 'posts/create_post.html'
-    post = get_object_or_404(Post)
     form = PostForm(
         request.POST or None,
         files=request.FILES or None,
-        instance=post,
     )
     if form.is_valid():
         post = form.save(commit=False)
