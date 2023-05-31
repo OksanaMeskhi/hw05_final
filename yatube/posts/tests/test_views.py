@@ -199,10 +199,9 @@ class FollowViewsTest(TestCase):
 
     def test_follow_on_user(self):
         """Проверка подписки на пользователя."""
-        self.follower_client.post(
-            reverse(
-                'posts:profile_follow',
-                kwargs={'username': self.post_follower}))
+        self.follower_client.get(reverse(
+            'posts:profile_follow',
+            kwargs={'username': self.user}))
         self.assertTrue(Follow.objects.filter(
             user=self.user_following,
             author=self.user,).exists()
