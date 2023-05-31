@@ -177,10 +177,10 @@ class FollowViewsTest(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.post_author = User.objects.create(
+        cls.post_author = User.objects.create_user(
             username='post_author',
         )
-        cls.post_follower = User.objects.create(
+        cls.post_follower = User.objects.create_user(
             username='post_follower',
         )
         cls.post = Post.objects.create(
