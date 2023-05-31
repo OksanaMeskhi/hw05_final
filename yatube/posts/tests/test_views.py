@@ -194,8 +194,6 @@ class FollowViewsTest(TestCase):
         self.author_client.force_login(self.post_follower)
         self.follower_client = Client()
         self.follower_client.force_login(self.post_author)
-        self.user_following = User.objects.create_user(username='TestUser1')
-        self.user = User.objects.create_user(username='TestUser2')
 
     def test_follow_on_user(self):
         """Проверка подписки на пользователя."""
@@ -203,8 +201,8 @@ class FollowViewsTest(TestCase):
             'posts:profile_follow',
             kwargs={'username': self.user}))
         self.assertTrue(Follow.objects.filter(
-            user=self.user_following,
-            author=self.user,).exists()
+            user=self.follower_client,
+            author=self.author_client,).exists()
         )
 
     def test_unfollow_on_user(self):
@@ -214,7 +212,7 @@ class FollowViewsTest(TestCase):
             author=self.post_follower)
         self.assertFalse(Follow.objects.filter(
             user=self.user_following,
-            author=self.user,).exists()
+            author=self.author_client,).exists()
         )
 
 
