@@ -199,6 +199,7 @@ class FollowViewsTest(TestCase):
             author=self.user_following
         ).exists()
         self.assertTrue(follow_exists)
+        self.assertEqual(Follow.objects.all().count(), 1)
 
     def test_unfollow(self):
         Follow.objects.get_or_create(
