@@ -199,7 +199,7 @@ class FollowViewsTest(TestCase):
         """Проверка подписки на пользователя."""
         self.follower_client.get(reverse(
             'posts:profile_follow',
-            kwargs={'username': self.user}))
+            kwargs={'username': self.follower_client}))
         self.assertTrue(Follow.objects.filter(
             user=self.follower_client,
             author=self.author_client,).exists()
@@ -211,7 +211,7 @@ class FollowViewsTest(TestCase):
             user=self.post_author,
             author=self.post_follower)
         self.assertFalse(Follow.objects.filter(
-            user=self.user_following,
+            user=self.follower_client,
             author=self.author_client,).exists()
         )
 
