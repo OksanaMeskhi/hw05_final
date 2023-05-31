@@ -194,7 +194,8 @@ class FollowViewsTest(TestCase):
         self.author_client.force_login(self.post_follower)
         self.follower_client = Client()
         self.follower_client.force_login(self.post_author)
-        self.user_following = User.objects.create_user(username='TestUser')
+        self.user_following = User.objects.create_user(username='TestUser1')
+        self.user = User.objects.create_user(username='TestUser2')
 
     def test_follow_on_user(self):
         """Проверка подписки на пользователя."""
