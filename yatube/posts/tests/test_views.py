@@ -174,47 +174,46 @@ class PostViewsTest(TestCase):
 
 
 class FollowViewsTest(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.post_author = User.objects.create_user(
-            username='post_author',
-        )
-        cls.post_follower = User.objects.create_user(
-            username='post_follower',
-        )
-        cls.post = Post.objects.create(
-            text='Подписка',
-            author=cls.post_author,
-        )
-
     def setUp(self):
         cache.clear()
-        self.author_client = Client()
-        self.author_client.force_login(self.post_follower)
-        self.follower_client = Client()
-        self.follower_client.force_login(self.post_author)
 
-    def test_follow_on_user(self):
-        """Проверка подписки на пользователя."""
+        self.client_auth_follower = Client()
+        self.client_auth_following = Client()
+        self.user_follower = User.objects.create_user(
+            username='First', email='first@mail.ru', password='pass')
+        self.user_following = User.objects.create_user(
+            username='Second', email='second@mail.ru', password='pass')
+        self.post = Post.objects.create(
+            author=self.user_following,
+            text='test_post'
+        )
+        self.client_auth_follower.force_login(self.user_follower)
+        self.client_auth_following.force_login(self.user_following)
+
+    def test_follow(self):
         Follow.objects.all().delete()
-        self.follower_client.get(reverse(
-            'posts:profile_follow',
-            kwargs={'username': self.author_client.username}))
-        self.assertTrue(Follow.objects.filter(
-            user=self.follower_client,
-            author=self.author_client,).exists()
+        self.client_auth_follower.get(reverse('posts:profile_follow', kwargs={
+            'username': self.user_following.username}))
+        follow_exists = Follow.objects.filter(
+            user=self.user_follower,
+            author=self.user_following
+        ).exists()
+        self.assertTrue(follow_exists)
+
+    def test_unfollow(self):
+        Follow.objects.get_or_create(
+            user=self.user_follower,
+            author=self.user_following
         )
 
-    def test_unfollow_on_user(self):
-        """Проверка отписки от пользователя."""
-        Follow.objects.create(
-            user=self.post_author,
-            author=self.post_follower)
-        self.assertFalse(Follow.objects.filter(
-            user=self.follower_client,
-            author=self.author_client,).exists()
-        )
+        self.client_auth_follower.get(reverse(
+            'posts:profile_unfollow', kwargs={
+                'username': self.user_following.username}))
+        follow_not_exists = Follow.objects.filter(
+            user=self.user_follower,
+            author=self.user_following
+        ).exists()
+        self.assertFalse(follow_not_exists)
 
 
 class PaginatorTest(TestCase):
