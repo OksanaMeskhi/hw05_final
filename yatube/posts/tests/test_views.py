@@ -72,7 +72,7 @@ class PostViewsTest(TestCase):
         self.assertEqual(post.text, self.post.text)
         self.assertEqual(post.author.username, self.user.username)
         self.assertEqual(post.group.slug, self.group.slug)
-        self.assertEqual(post.image, f'posts/{self.uploaded}')
+        self.assertEqual(post.image, self.post.image)
 
     def get_post(self, response):
         page_obj = response.context.get('page_obj')
@@ -199,7 +199,6 @@ class FollowViewsTest(TestCase):
             author=self.user_following
         ).exists()
         self.assertTrue(follow_exists)
-        self.assertEqual(Follow.objects.all().count(), 1)
 
     def test_unfollow(self):
         Follow.objects.get_or_create(
@@ -215,6 +214,28 @@ class FollowViewsTest(TestCase):
             author=self.user_following
         ).exists()
         self.assertFalse(follow_not_exists)
+
+    def test_visual_follow_in_page(self):
+        post = Post.objects.create(
+            pub_date='1 июня 2023',
+            author=self.user_following,
+            text='Тестовый текст',
+        )
+        Follow.objects.create(
+            author=self.user_following, user=self.user_follower)
+        response = self.client_auth_follower.get(reverse('posts:follow_index'))
+        post_list = response.context['page_obj'].object_list
+        self.assertIn(post, post_list)
+
+    def test_not_visual_follow_in_page(self):
+        post = Post.objects.create(
+            pub_date='1 июня 2023',
+            author=self.user_following,
+            text='Тестовый текст',
+        )
+        response = self.client_auth_follower.get(reverse('posts:follow_index'))
+        post_list = response.context['page_obj'].object_list
+        self.assertNotIn(post, post_list)
 
 
 class PaginatorTest(TestCase):

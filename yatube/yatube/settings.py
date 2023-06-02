@@ -156,4 +156,4 @@ CACHES = {
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
-# CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
+CSRF_FAILURE_VIEW = 'core.views.csrf_failure'

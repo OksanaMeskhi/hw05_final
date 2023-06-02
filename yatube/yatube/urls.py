@@ -17,7 +17,6 @@ urlpatterns = [
 
 handler404 = 'core.views.page_not_found'
 handler403 = 'core.views.permission_denied'
-handler403_csrf = 'core.views.csrf_failure'
 
 if settings.DEBUG:
     urlpatterns += static(

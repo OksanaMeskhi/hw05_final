@@ -143,5 +143,5 @@ def profile_follow(request, username):
 def profile_unfollow(request, username):
     """Функция отписки от автора."""
     user = request.user
-    Follow.objects.get(user=user, author__username=username).delete()
+    Follow.objects.filter(user=user, author__username=username).delete()
     return redirect('posts:profile', username=username)
