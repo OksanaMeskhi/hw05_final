@@ -9,7 +9,14 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from ..models import Post, Group, User, Comment
 
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
-
+SMALL_GIF = (
+    b'\x47\x49\x46\x38\x39\x61\x02\x00'
+    b'\x01\x00\x80\x00\x00\x00\x00\x00'
+    b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
+    b'\x00\x00\x00\x2C\x00\x00\x00\x00'
+    b'\x02\x00\x01\x00\x00\x02\x02\x0C'
+    b'\x0A\x00\x3B'
+)
 
 @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class PostFormTests(TestCase):
@@ -22,17 +29,9 @@ class PostFormTests(TestCase):
             slug='test-slug',
             description='Тестовое описание'
         )
-        small_gif = (
-            b'\x47\x49\x46\x38\x39\x61\x02\x00'
-            b'\x01\x00\x80\x00\x00\x00\x00\x00'
-            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
-            b'\x00\x00\x00\x2C\x00\x00\x00\x00'
-            b'\x02\x00\x01\x00\x00\x02\x02\x0C'
-            b'\x0A\x00\x3B'
-        )
         cls.uploaded = SimpleUploadedFile(
             name='small_1.gif',
-            content=small_gif,
+            content=SMALL_GIF,
             content_type='image/gif'
         )
         cls.group1 = Group.objects.create(
@@ -59,10 +58,15 @@ class PostFormTests(TestCase):
 
     def test_create_post(self):
         test_posts = set(Post.objects.all())
+        uploaded = SimpleUploadedFile(
+            name='small.gif',
+            content=SMALL_GIF,
+            content_type='image/gif'
+        )
         form_data = {
             'text': 'Тестовый текст',
             'group': self.group.id,
-            'image': self.uploaded,
+            'image': uploaded,
         }
         response = self.authorized_client.post(
             reverse('posts:post_create'),
