@@ -59,15 +59,10 @@ class PostFormTests(TestCase):
 
     def test_create_post(self):
         test_posts = set(Post.objects.all())
-        uploaded = SimpleUploadedFile(
-            name='small.gif',
-            content=self.small_gif,
-            content_type='image/gif'
-        )
         form_data = {
             'text': 'Тестовый текст',
             'group': self.group.id,
-            'image': uploaded,
+            'image': self.uploaded,
         }
         response = self.authorized_client.post(
             reverse('posts:post_create'),
