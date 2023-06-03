@@ -217,19 +217,17 @@ class FollowViewsTest(TestCase):
 
     def test_visual_follow_in_page(self):
         post = Post.objects.create(
-            pub_date='1 июня 2023',
             author=self.user_following,
             text='Тестовый текст',
         )
         Follow.objects.create(
             author=self.user_following, user=self.user_follower)
         response = self.client_auth_follower.get(reverse('posts:follow_index'))
-        post_list = response.context['page_obj'].object_list
+        post_list = response.context['page_obj']
         self.assertIn(post, post_list)
 
     def test_not_visual_follow_in_page(self):
         post = Post.objects.create(
-            pub_date='1 июня 2023',
             author=self.user_following,
             text='Тестовый текст',
         )
